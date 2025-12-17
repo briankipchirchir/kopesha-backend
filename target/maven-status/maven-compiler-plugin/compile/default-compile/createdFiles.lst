@@ -1,7 +1,9 @@
 com/example/loanapp/StkPushRequest.class
+com/example/loanapp/GlobalCorsConfig.class
 com/example/loanapp/LoanApplicationRepository.class
 com/example/loanapp/LoanApplicationController.class
 com/example/loanapp/EnvConfig.class
 com/example/loanapp/LoanApplication.class
+com/example/loanapp/GlobalCorsConfig$1.class
 com/example/loanapp/LoanAppApplication.class
 com/example/loanapp/LoanApplicationController$PaymentStatus.class

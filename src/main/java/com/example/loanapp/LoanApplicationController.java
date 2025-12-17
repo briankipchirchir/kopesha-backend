@@ -15,10 +15,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping("/api/loans")
 @CrossOrigin(
-        origins = "https://kopesha.vercel.app",
+        origins = {
+                "http://localhost:3000",
+                "https://kopesha.vercel.app"
+        },
         allowedHeaders = "*",
-        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+        methods = {
+                RequestMethod.GET,
+                RequestMethod.POST,
+                RequestMethod.PUT,
+                RequestMethod.DELETE,
+                RequestMethod.OPTIONS
+        }
 )
+
 public class LoanApplicationController {
 
     @Autowired
