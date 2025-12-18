@@ -295,43 +295,67 @@ public class LoanApplicationController {
 
         throw new RuntimeException("Invalid phone number format: " + phone);
     }
-
     @PostMapping("/mpesa/callback")
     public ResponseEntity<Map<String, Object>> mpesaCallback(@RequestBody Map<String, Object> payload) {
         try {
             System.out.println("Callback received: " + payload);
 
+            // Check if payload has Body
+            if (payload == null || !payload.containsKey("Body")) {
+                System.err.println("Invalid callback payload: missing Body");
+                return ResponseEntity.status(400).body(Map.of("error", "Invalid callback payload: missing Body"));
+            }
+
             Map<String, Object> body = (Map<String, Object>) payload.get("Body");
+
+            // Check if Body has stkCallback
+            if (body == null || !body.containsKey("stkCallback")) {
+                System.err.println("Invalid callback payload: missing stkCallback");
+                return ResponseEntity.status(400).body(Map.of("error", "Invalid callback payload: missing stkCallback"));
+            }
+
             Map<String, Object> stkCallback = (Map<String, Object>) body.get("stkCallback");
 
-            Integer resultCode = (Integer) stkCallback.get("ResultCode");
-            String resultDesc = (String) stkCallback.get("ResultDesc");
-            String checkoutRequestID = (String) stkCallback.get("CheckoutRequestID");
+            // Extract required fields safely
+            Integer resultCode = stkCallback.get("ResultCode") instanceof Integer
+                    ? (Integer) stkCallback.get("ResultCode")
+                    : Integer.parseInt(stkCallback.get("ResultCode").toString());
 
-            // Find loan by checkoutRequestID and update status
+            String resultDesc = stkCallback.get("ResultDesc") != null
+                    ? stkCallback.get("ResultDesc").toString()
+                    : "No description";
+
+            String checkoutRequestID = stkCallback.get("CheckoutRequestID") != null
+                    ? stkCallback.get("CheckoutRequestID").toString()
+                    : null;
+
+            if (checkoutRequestID == null) {
+                System.err.println("Invalid callback: missing CheckoutRequestID");
+                return ResponseEntity.status(400).body(Map.of("error", "Missing CheckoutRequestID"));
+            }
+
+            // Find loan and update status
             Optional<LoanApplication> loanOptional = repository.findByCheckoutRequestID(checkoutRequestID);
 
             if (loanOptional.isPresent()) {
                 LoanApplication loan = loanOptional.get();
 
                 switch (resultCode) {
-                    case 0:
+                    case 0 -> {
                         loan.setStatus("PAID");
                         paymentStatusMap.put(checkoutRequestID, new PaymentStatus("success", resultDesc));
                         System.out.println("Payment successful for loan " + loan.getTrackingId());
-                        break;
-
-                    case 1032:
+                    }
+                    case 1032 -> {
                         loan.setStatus("CANCELLED");
                         paymentStatusMap.put(checkoutRequestID, new PaymentStatus("cancelled", resultDesc));
                         System.out.println("Payment cancelled for loan " + loan.getTrackingId());
-                        break;
-
-                    default:
+                    }
+                    default -> {
                         loan.setStatus("FAILED");
                         paymentStatusMap.put(checkoutRequestID, new PaymentStatus("failed", resultDesc));
                         System.out.println("Payment failed for loan " + loan.getTrackingId());
-                        break;
+                    }
                 }
 
                 repository.save(loan);
@@ -347,6 +371,7 @@ public class LoanApplicationController {
             return ResponseEntity.status(500).body(Map.of("error", "Callback processing failed"));
         }
     }
+
     @GetMapping("/mpesa/status/{checkoutRequestID}")
     public ResponseEntity<?> getPaymentStatus(@PathVariable String checkoutRequestID) {
         Optional<LoanApplication> loanOptional =
