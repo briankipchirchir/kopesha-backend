@@ -103,7 +103,7 @@ public class LoanApplicationController {
             tokenHeaders.set("Authorization", "Basic " + encodedAuth);
 
             ResponseEntity<Map> tokenRes = restTemplate.exchange(
-                    "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+                    "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
                     HttpMethod.GET,
                     new HttpEntity<>(tokenHeaders),
                     Map.class
@@ -135,7 +135,7 @@ public class LoanApplicationController {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             ResponseEntity<String> stkRes = restTemplate.postForEntity(
-                    "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+                    "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
                     new HttpEntity<>(payload, headers),
                     String.class
             );
@@ -183,7 +183,7 @@ public class LoanApplicationController {
             tokenHeaders.set("Authorization", "Basic " + encodedAuth);
 
             ResponseEntity<Map> tokenRes = restTemplate.exchange(
-                    "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
+                    "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
                     HttpMethod.GET,
                     new HttpEntity<>(tokenHeaders),
                     Map.class
@@ -347,36 +347,6 @@ public class LoanApplicationController {
     }
 
 
-    // TEST ENDPOINT - Simulate M-Pesa callback for testing purposes
-    @PostMapping("/mpesa/test-callback/{checkoutRequestID}/{resultCode}")
-    public ResponseEntity<Map<String, Object>> testCallback(
-            @PathVariable String checkoutRequestID,
-            @PathVariable int resultCode) {
-
-        String resultDesc;
-        if (resultCode == 0) {
-            resultDesc = "The service request has been processed successfully.";
-        } else if (resultCode == 1032) {
-            resultDesc = "Request cancelled by user";
-        } else {
-            resultDesc = "Transaction failed";
-        }
-
-        // Create the callback payload
-        Map<String, Object> payload = new HashMap<>();
-        Map<String, Object> body = new HashMap<>();
-        Map<String, Object> stkCallback = new HashMap<>();
-
-        stkCallback.put("CheckoutRequestID", checkoutRequestID);
-        stkCallback.put("ResultCode", resultCode);
-        stkCallback.put("ResultDesc", resultDesc);
-
-        body.put("stkCallback", stkCallback);
-        payload.put("Body", body);
-
-        // Process it like a real callback
-        return mpesaCallback(payload);
-    }
 
 
     // Delete a loan by its tracking ID
