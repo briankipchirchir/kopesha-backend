@@ -66,12 +66,7 @@ public class LoanApplicationController {
     @PostMapping("/apply")
     public LoanApplication applyLoan(@RequestBody LoanApplication application) {
         // Random loan amount between 10,000 - 250,000
-        int loanAmount = random.nextInt(23_000 - 10_000 + 1) + 10_000;
-        application.setLoanAmount(loanAmount);
 
-        // Random verification fee between 186 - 199
-        int verificationFee = random.nextInt(199 - 186 + 1) + 186;
-        application.setVerificationFee(verificationFee);
         application.setStatus("PENDING");
 
         // Generate random tracking ID: e.g., LON-C123456L9876543
@@ -93,6 +88,13 @@ public class LoanApplicationController {
                 ));
             }
             LoanApplication loan = loanOptional.get();
+
+            // AFTER finding the loan
+
+// ✅ SAVE SELECTED VALUES FROM FRONTEND
+            loan.setLoanAmount(request.getLoanAmount());
+            loan.setVerificationFee(request.getVerificationFee());
+            loan.setStatus("PENDING");
 
             // 2️⃣ Format phone
             String phone = formatPhone(request.getPhone());
@@ -175,6 +177,8 @@ public class LoanApplicationController {
                 String checkoutRequestID = root.get("CheckoutRequestID").asText();
                 loan.setStatus("PENDING");
                 loan.setCheckoutRequestID(checkoutRequestID);
+
+
                 repository.save(loan);
 
                 // Track payment status
@@ -258,7 +262,7 @@ public class LoanApplicationController {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             ResponseEntity<String> stkRes = restTemplate.postForEntity(
-                    "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+                    "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
                     new HttpEntity<>(payload, headers),
                     String.class
             );

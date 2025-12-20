@@ -1,22 +1,15 @@
 package com.example.loanapp;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
 public class StkPushRequest {
     private String trackingId;
     private String phone;
     private int amount;
-
-    // getters & setters
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
-
-    public int getAmount() { return amount; }
-    public void setAmount(int amount) { this.amount = amount; }
-
-    public String getTrackingId() {
-        return trackingId;
-    }
-
-    public void setTrackingId(String trackingId) {
-        this.trackingId = trackingId;
-    }
+    private int loanAmount;
+    private int verificationFee;
 }
+
