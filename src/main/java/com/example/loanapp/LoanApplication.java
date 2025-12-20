@@ -3,6 +3,8 @@ package com.example.loanapp;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @Entity
 public class LoanApplication {
@@ -22,4 +24,8 @@ public class LoanApplication {
 
     @Column(unique = true)
     private String checkoutRequestID;
+
+    @Column(name = "application_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date applicationDate;
 }

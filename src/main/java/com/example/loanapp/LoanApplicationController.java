@@ -68,6 +68,7 @@ public class LoanApplicationController {
         // Random loan amount between 10,000 - 250,000
 
         application.setStatus("PENDING");
+        application.setApplicationDate(new Date());
 
         // Generate random tracking ID: e.g., LON-C123456L9876543
         String trackingId = "LON-C" + (100000 + random.nextInt(900000))
