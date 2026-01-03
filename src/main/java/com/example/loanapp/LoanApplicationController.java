@@ -444,5 +444,37 @@ public class LoanApplicationController {
         }
     }
 
+    @PostMapping("/verify-message")
+    public ResponseEntity<Map<String, Object>> saveMpesaMessage(@RequestBody Map<String, String> payload) {
+        try {
+            String trackingId = payload.get("trackingId");
+            String mpesaMessage = payload.get("mpesaMessage");
+
+            if (trackingId == null || mpesaMessage == null || mpesaMessage.isEmpty()) {
+                return ResponseEntity.status(400).body(Map.of("error", "Missing trackingId or mpesaMessage"));
+            }
+
+            Optional<LoanApplication> loanOptional = repository.findByTrackingId(trackingId);
+
+            if (loanOptional.isEmpty()) {
+                return ResponseEntity.status(404).body(Map.of("error", "Loan not found"));
+            }
+
+            LoanApplication loan = loanOptional.get();
+            loan.setMpesaMessage(mpesaMessage);
+            loan.setStatus("MESSAGE_RECEIVED"); // optional: track that message is received
+            repository.save(loan);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "M-Pesa message saved successfully",
+                    "trackingId", trackingId
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of("error", "Server error"));
+        }
+    }
+
+
 
 }

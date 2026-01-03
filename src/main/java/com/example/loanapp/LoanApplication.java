@@ -22,10 +22,15 @@ public class LoanApplication {
     private String status; // PENDING, APPROVED, REJECTED
     private String trackingId;
 
+    @Column(columnDefinition = "TEXT")
+    private String mpesaMessage;
+
     @Column(unique = true)
     private String checkoutRequestID;
 
     @Column(name = "application_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date applicationDate;
+
+
 }
